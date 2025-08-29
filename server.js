@@ -13,7 +13,29 @@ app.post('/transcript', async (req, res) => {
     
     console.log(`Getting transcript for: ${url}`);
     
-    const lines = await YoutubeTranscript.fetchTranscript(url, { lang });
+    // Add retry logic for captcha/rate limiting
+    const maxRetries = 3;
+    let lines = null;
+    
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+      try {
+        lines = await YoutubeTranscript.fetchTranscript(url, { lang });
+        break; // Success - exit retry loop
+      } catch (error) {
+        console.log(`Attempt ${attempt + 1} failed:`, error.message);
+        
+        if (error.message.includes('captcha') || error.message.includes('too many requests')) {
+          if (attempt < maxRetries - 1) {
+            const delay = 5000 * (attempt + 1); // Increasing delay
+            console.log(`Retrying in ${delay}ms...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+            continue;
+          }
+        }
+        throw error; // Re-throw if not retryable or max attempts reached
+      }
+    }
+    
     const items = (lines || []).map(l => ({
       text: l.text,
       duration: (l.duration || 0) / 1000,
