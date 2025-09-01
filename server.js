@@ -7,6 +7,20 @@ app.use(cors());
 app.use(express.json());
 
 app.post('/transcript', async (req, res) => {
+  console.log('Full request body:', req.body);
+  console.log('VideoId from request:', req.body.videoId);
+  console.log('VideoId type:', typeof req.body.videoId);
+  
+  try {
+    const { videoId, lang = 'en' } = req.body;
+    
+    if (!videoId) {
+      return res.status(400).json({ error: 'videoId is required' });
+    }
+    
+    // ... rest of your existing code
+    
+app.post('/transcript', async (req, res) => {
   try {
     const { videoId, lang = 'en' } = req.body;
     const url = videoId.startsWith('http') ? videoId : `https://www.youtube.com/watch?v=${videoId}`;
