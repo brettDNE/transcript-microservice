@@ -18,11 +18,6 @@ app.post('/transcript', async (req, res) => {
       return res.status(400).json({ error: 'videoId is required' });
     }
     
-    // ... rest of your existing code
-    
-app.post('/transcript', async (req, res) => {
-  try {
-    const { videoId, lang = 'en' } = req.body;
     const url = videoId.startsWith('http') ? videoId : `https://www.youtube.com/watch?v=${videoId}`;
     
     console.log(`Getting transcript for: ${url}`);
